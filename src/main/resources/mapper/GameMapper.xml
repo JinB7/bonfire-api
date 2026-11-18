@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.jinb7.gamecuration.domain.game.mapper.GameMapper">
+
+    <select id="findAllGames"
+            resultType="io.github.jinb7.gamecuration.domain.game.dto.GameSummaryResponse">
+        SELECT app_id, name, name_ko
+        FROM games
+    </select>
+
+    <select id="findGamesByKeyword"
+            resultType="io.github.jinb7.gamecuration.domain.game.dto.GameSummaryResponse">
+        SELECT app_id, name, name_ko
+        FROM games
+            WHERE name ILIKE ('%' || #{keyword} || '%')
+            OR name_ko ILIKE ('%' || #{keyword} || '%')
+        ORDER BY
+            CASE
+                WHEN lower(name) = lower(#{keyword}) OR name_ko = #{keyword}                         THEN 0
+                WHEN name ILIKE #{keyword} || '%' OR name_ko ILIKE #{keyword} || '%'                 THEN 1
+                WHEN name ILIKE '% ' || #{keyword} || '%' OR name_ko ILIKE '% ' || #{keyword} || '%' THEN 2
+                ELSE 3
+            END,
+            length(name),
+            app_id
+        LIMIT 6
+    </select>
+
+</mapper>
